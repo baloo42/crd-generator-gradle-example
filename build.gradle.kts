@@ -41,20 +41,19 @@ tasks.test {
 
 val generateCrds by tasks.registering {
     doLast {
-
         val sourceSet = project.sourceSets["main"]
 
-        val classpathElements = listOf(
-            sourceSet.compileClasspath.map { e -> e.absolutePath },
-            sourceSet.output.classesDirs.map { d -> d.absolutePath }
-        ).flatten()
+        val dependencyClasspathElements = sourceSet.compileClasspath.map { e -> e.absolutePath }
+        val outputClassesDirs = sourceSet.output.classesDirs.map { d -> d.absolutePath }
 
-        val filesToScan = listOf(project.layout.buildDirectory.get().asFile)
-
+        val classpathElements = listOf(outputClassesDirs, dependencyClasspathElements).flatten()
+        val filesToScan = listOf(sourceSet.output.classesDirs).flatten()
         val outputDir = sourceSet.output.resourcesDir
 
         if (outputDir != null) {
             Files.createDirectories(outputDir.toPath())
+        } else {
+            throw GradleException("Could not use output dir")
         }
 
         val collector = CustomResourceCollector()
@@ -64,7 +63,7 @@ val generateCrds by tasks.registering {
 
         val crdGenerator = CRDGenerator()
             .customResourceClasses(collector.findCustomResourceClasses())
-            .inOutputDir(sourceSet.output.resourcesDir)
+            .inOutputDir(outputDir)
 
         val crdGenerationInfo: CRDGenerationInfo = crdGenerator.detailedGenerate()
 
