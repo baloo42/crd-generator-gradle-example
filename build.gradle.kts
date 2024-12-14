@@ -1,6 +1,7 @@
 import io.fabric8.crdv2.generator.CRDGenerationInfo
 import io.fabric8.crdv2.generator.CRDGenerator
 import io.fabric8.crd.generator.collector.CustomResourceCollector
+import org.gradle.api.internal.tasks.JvmConstants
 import java.nio.file.Files
 
 plugins {
@@ -39,19 +40,22 @@ tasks.test {
     useJUnitPlatform()
 }
 
-val generateCrds by tasks.registering {
+tasks.register("generateCrds") {
+    description = "Generate CRDs from compiled custom resource classes"
+    group = "crd"
+
+    val sourceSet = project.sourceSets["main"]
+
+    val compileClasspathElements = sourceSet.compileClasspath.map { e -> e.absolutePath }
+
+    val outputClassesDirs = sourceSet.output.classesDirs
+    val outputClasspathElements = outputClassesDirs.map { d -> d.absolutePath }
+
+    val classpathElements = listOf(outputClasspathElements, compileClasspathElements).flatten()
+    val filesToScan = listOf(outputClassesDirs).flatten()
+    val outputDir = sourceSet.output.resourcesDir
+
     doLast {
-        val sourceSet = project.sourceSets["main"]
-
-        val compileClasspathElements = sourceSet.compileClasspath.map { e -> e.absolutePath }
-
-        val outputClassesDirs = sourceSet.output.classesDirs
-        val outputClasspathElements = outputClassesDirs.map { d -> d.absolutePath }
-
-        val classpathElements = listOf(outputClasspathElements, compileClasspathElements).flatten()
-        val filesToScan = listOf(outputClassesDirs).flatten()
-        val outputDir = sourceSet.output.resourcesDir
-
         Files.createDirectories(outputDir!!.toPath())
 
         val collector = CustomResourceCollector()
@@ -72,6 +76,6 @@ val generateCrds by tasks.registering {
     }
 }
 
-tasks.named("classes") {
+tasks.named(JvmConstants.CLASSES_TASK_NAME) {
     finalizedBy("generateCrds")
 }
