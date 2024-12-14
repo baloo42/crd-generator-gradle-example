@@ -52,11 +52,7 @@ val generateCrds by tasks.registering {
         val filesToScan = listOf(outputClassesDirs).flatten()
         val outputDir = sourceSet.output.resourcesDir
 
-        if (outputDir != null) {
-            Files.createDirectories(outputDir.toPath())
-        } else {
-            throw GradleException("Could not use output dir")
-        }
+        Files.createDirectories(outputDir!!.toPath())
 
         val collector = CustomResourceCollector()
             .withParentClassLoader(Thread.currentThread().contextClassLoader)
@@ -71,7 +67,7 @@ val generateCrds by tasks.registering {
 
         crdGenerationInfo.crdDetailsPerNameAndVersion.forEach { (crdName, versionToInfo) ->
             println("Generated CRD $crdName:")
-            versionToInfo.forEach { (version, info) -> println(" " + version + " -> " + info.filePath) }
+            versionToInfo.forEach { (version, info) -> println(" $version -> ${info.filePath}") }
         }
     }
 }
