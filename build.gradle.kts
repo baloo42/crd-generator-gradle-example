@@ -44,10 +44,12 @@ val generateCrds by tasks.registering {
         val sourceSet = project.sourceSets["main"]
 
         val dependencyClasspathElements = sourceSet.compileClasspath.map { e -> e.absolutePath }
-        val outputClassesDirs = sourceSet.output.classesDirs.map { d -> d.absolutePath }
 
-        val classpathElements = listOf(outputClassesDirs, dependencyClasspathElements).flatten()
-        val filesToScan = listOf(sourceSet.output.classesDirs).flatten()
+        val outputClassesDirs = sourceSet.output.classesDirs
+        val outputClasspathElements = outputClassesDirs.map { d -> d.absolutePath }
+
+        val classpathElements = listOf(outputClasspathElements, dependencyClasspathElements).flatten()
+        val filesToScan = listOf(outputClassesDirs).flatten()
         val outputDir = sourceSet.output.resourcesDir
 
         if (outputDir != null) {
