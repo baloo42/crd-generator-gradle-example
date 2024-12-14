@@ -15,8 +15,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.fabric8:kubernetes-client-api:7.0.0")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    val kubernetesClientVersion: String by project
+    val junitVersion: String by project
+
+    compileOnly("io.fabric8:kubernetes-client-api:$kubernetesClientVersion")
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
@@ -25,8 +28,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("io.fabric8:crd-generator-api-v2:7.0.0")
-        classpath("io.fabric8:crd-generator-collector:7.0.0")
+        val kubernetesClientVersion: String by project
+
+        classpath("io.fabric8:crd-generator-api-v2:$kubernetesClientVersion")
+        classpath("io.fabric8:crd-generator-collector:$kubernetesClientVersion")
     }
 }
 
